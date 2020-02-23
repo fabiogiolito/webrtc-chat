@@ -1,19 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
   <title>Video Chat App</title>
-  
+
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
 
 </head>
+
 <body>
 
-  <div class="container-fluid">
-    <div class="row h-100 w-100">
+  <div class="container">
+    <div class="row h-100 w-100 mt-5">
 
       <div class="col-12 col-sm-6 d-flex justify-content-center">
         <div class="embed-responsive embed-responsive-16by9">
@@ -25,12 +27,70 @@
         <div id="peerDiv" class="embed-responsive embed-responsive-16by9"></div>
       </div>
 
+      <div class="col-12 mt-5">
+        <div class="card">
+          <div class="card-body text-center" id="speech"></div>
+        </div>
+      </div>
+
     </div>
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="bundle.js"></script>
-  
-  
+
+  <script>
+    // Normalize method names
+    window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    // Create recognition
+    const recognition = new SpeechRecognition();
+    recognition.interimResults = true;
+
+    // Create paragraph
+    const speech = document.querySelector('#speech');
+    var silenceTimer
+
+    // Get recognition results
+    recognition.addEventListener('result', e => {
+
+      window.clearTimeout(silenceTimer);
+
+      // Get the text out of the results
+      const transcript = Array.from(e.results)
+        .map(result => result[0])
+        .map(result => result.transcript)
+        .join('')
+
+      // Add results to the paragraph
+      speech.textContent = transcript;
+
+      // Clear after 5 seconds
+      silenceTimer = window.setTimeout(() => {
+        speech.textContent = ""
+      }, 2000);
+
+
+      // // Add new paragraph when you stop talking
+      // if (e.results[0].isFinal) {
+      //   p = document.createElement('p');
+      //   speech.appendChild(p);
+      // }
+
+      // // Detect a word
+      // if (transcript.includes('funny')) {
+      //   console.log('so funny')
+      // }
+    });
+
+    // Auto restart when I stop talking
+    recognition.addEventListener('end', recognition.start)
+
+    // Start on page load
+    recognition.start();
+
+  </script>
+
 </body>
+
 </html>
